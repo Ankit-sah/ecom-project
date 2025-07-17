@@ -1,5 +1,5 @@
 
-import { Product } from '@/models/Product';
+import { Product } from '@/app/models/Product';
 import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { connectDB } from '@/app/lib/db';
