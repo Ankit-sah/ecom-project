@@ -1,10 +1,19 @@
-import type { NextConfig } from "next";
+ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['static.nike.com','media.timeout.com'], // 👈 add the domain here
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'static.nike.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.timeout.com',
+      },
+    ],
   },
-  /* config options here */
+  /* other config options here */
 };
 
 export default nextConfig;
