@@ -6,8 +6,8 @@ A full-stack eCommerce application built with the latest features of Next.js (Ap
 
 ## 🚀 Tech Stack
 
-- **Next.js 14** (App Router & API routes)
-- **React 18**
+- **Next.js 15** (App Router & API routes)
+- **React 19**
 - **MongoDB + Mongoose**
 - **Tailwind CSS**
 - **Zustand** for cart state
