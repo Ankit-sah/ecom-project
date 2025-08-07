@@ -1,91 +1,100 @@
+// app/orders/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 
-type OrderItem = {
+interface OrderItem {
   product: {
-    _id: string;
     name: string;
     price: number;
     image: string;
   };
   quantity: number;
-};
+}
 
-type Order = {
+interface Order {
   _id: string;
-  user: {
-    name: string;
-    email: string;
-  };
+  user: string;
   items: OrderItem[];
   totalAmount: number;
   status: string;
-};
+  createdAt: string;
+}
 
-const Orders = () => {
-  const { data: session, status } = useSession();
+export default function OrdersPage() {
+  const { data: session } = useSession();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!session?.user?.id) return;
+
     const fetchOrders = async () => {
-      if (status === 'authenticated' && session?.user?.id) {
-        try {
-          const res = await fetch(`/api/orders/user/${session.user.id}`);
-          const data = await res.json();
-          setOrders(data);
-        } catch (err) {
-          console.error('Failed to fetch orders:', err);
-        } finally {
-          setLoading(false);
-        }
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/orders/user/${session?.user?.id}`);
+        const data = await res.json();
+        setOrders(data);
+      } catch (err) {
+        console.error('Failed to fetch orders', err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchOrders();
-  }, [session, status]);
+  }, [session]);
 
-  if (loading) return <p>Loading orders...</p>;
+  if (loading) return <div className="p-4">Loading orders...</div>;
+  if (orders.length === 0) return <div className="p-4">No orders found.</div>;
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-semibold mb-4">Your Orders</h2>
-      {orders.length === 0 ? (
-        <p>No orders found.</p>
-      ) : (
-        <div className="space-y-4">
-          {orders.map((order) => (
-            <div key={order._id} className="border rounded-lg p-4 shadow-sm">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="font-semibold">Order ID: {order._id}</h3>
-                  <p>Status: <span className="capitalize">{order.status}</span></p>
-                  <p>Total: ${order.totalAmount.toFixed(2)}</p>
-                </div>
-              </div>
-              <div className="mt-4">
-                <h4 className="font-semibold mb-2">Items:</h4>
-                <ul className="space-y-2">
-                  {order.items.map((item, index) => (
-                    <li key={index} className="flex items-center space-x-4">
-                      <img src={item.product.image} alt={item.product.name} className="w-16 h-16 object-cover rounded" />
-                      <div>
-                        <p>{item.product.name}</p>
-                        <p>Price: ${item.product.price}</p>
-                        <p>Quantity: {item.quantity}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">My Orders</h1>
+      <div className="space-y-6">
+        {orders.map((order) => (
+          <div key={order._id} className="border rounded-lg p-4 shadow-sm">
+            <div className="mb-2 text-sm text-gray-500">
+              <span>Order ID: {order._id}</span> |{' '}
+              <span>Status: <strong className="capitalize">{order.status}</strong></span> |{' '}
+              <span>Placed on: {new Date(order.createdAt).toLocaleDateString()}</span>
             </div>
-          ))}
-        </div>
-      )}
+
+            <div className="space-y-3">
+              {order.items.map((item, idx) => (
+                <div key={idx} className="flex items-center space-x-4">
+                 {item?.product?.image ? (
+  <Image
+    src={item.product.image}
+    alt={item.product.name}
+    width={60}
+    height={60}
+    className="rounded"
+  />
+) : (
+  <div className="w-[60px] h-[60px] bg-gray-200 rounded" />
+)}
+
+                  <div className="flex-1">
+                    <div className="font-semibold">{item?.product?.name}</div>
+                    <div className="text-sm text-gray-500">
+                      Quantity: {item?.quantity} × ${item?.product?.price}
+                    </div>
+                  </div>
+                  <div className="text-right font-bold">
+                    ${(item?.product?.price * item?.quantity).toFixed(2)}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 text-right font-semibold text-lg">
+              Total: ${order.totalAmount.toFixed(2)}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
-};
-
-export default Orders;
+}

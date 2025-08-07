@@ -7,6 +7,7 @@ import { TrashIcon, ArrowPathIcon, PencilIcon, ShoppingCartIcon } from '@heroico
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 
+
 interface ProductCardProps {
   product: {
     _id: string;
@@ -65,15 +66,31 @@ export default function ProductCard({
       )}
 
       {/* Product Image */}
-      <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-md">
+     { product?.image ? 
+     <><div className="relative w-full aspect-square mb-3 overflow-hidden rounded-md">
         <Image
-          src={product.image || '/placeholder-product.jpg'}
+          src={product?.image}
           alt={product.title}
           fill
           className="object-cover group-hover:scale-105 transition-transform"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
+
       </div>
+      </>:
+      <>
+        <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-md">
+        <Image
+          src={"/images/burger.png"}
+          alt={product.title}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+
+      </div>
+      </>
+    }
 
       {/* Product Details */}
       <div className="space-y-1">

@@ -4,9 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { connectDB } from '@/app/lib/db';
 
+type tParams = Promise<{ id: string }>;
+
 export async function PATCH(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: tParams }
 ) {
   await connectDB();
   const { id } = await params;

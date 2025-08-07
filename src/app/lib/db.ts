@@ -6,7 +6,11 @@ if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable');
 }
 
-const cached = (global as any).mongoose || { conn: null, promise: null };
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
 
 export const connectDB = async () => {
   if (cached.conn) return cached.conn;
@@ -15,7 +19,6 @@ export const connectDB = async () => {
     cached.promise = mongoose.connect(MONGODB_URI, {
       bufferCommands: false,
     }).then((mongoose) => {
-      console.log("✅ MongoDB connected");
       return mongoose;
     }).catch((error) => {
       console.error("❌ MongoDB connection failed:", error);
@@ -24,7 +27,5 @@ export const connectDB = async () => {
   }
 
   cached.conn = await cached.promise;
-  (global as any).mongoose = cached;
-
   return cached.conn;
 };

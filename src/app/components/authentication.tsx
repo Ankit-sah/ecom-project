@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useSession, getCsrfToken } from 'next-auth/react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 import HeroSection from './HeroSection';
 import { Toaster } from 'react-hot-toast';
@@ -12,9 +12,9 @@ type AuthProps = {
 };
 
 const Authentication = ({ children }: AuthProps) => {
-  const { data: session, status } = useSession();
+  const {  status } = useSession();
   const pathname = usePathname();
-  const router = useRouter();
+ 
 
   const [formLoaded, setFormLoaded] = useState(false);
   const [csrfToken, setCsrfToken] = useState<string | null>(null);

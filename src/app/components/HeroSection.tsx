@@ -60,7 +60,6 @@ export default function HeroSection({ onShowLogin, onHideLogin }: HeroSectionPro
                     <UserIcon className="h-4 w-4 text-indigo-600" />
                   </div>
                   <span className="text-gray-800 font-medium">
-                    {JSON.stringify(session?.user?.id)}
                     {session.user?.name || session.user?.email?.split('@')[0]}
                   </span>
                 </div>

@@ -1,7 +1,9 @@
 
 import { connectDB } from '@/app/lib/db';
 import { Product } from '@/app/models/Product';
+import { FilterQuery } from 'mongoose';
 import { NextRequest, NextResponse } from 'next/server';
+import { IProduct } from '@/app/models/Product';
 
 // export async function GET() {
 //   try {
@@ -25,30 +27,38 @@ export async function GET(req: NextRequest) {
 
   const skip = (page - 1) * limit;
 
-  const filter: any = { isDeleted: false };
+  const match: FilterQuery<IProduct> = { isDeleted: false };
 
   if (search) {
-    filter.title = { $regex: search, $options: 'i' };
+    match.title = { $regex: search, $options: 'i' };
   }
 
   if (category) {
-    filter.category = category;
+    match.category = category;
   }
 
-  const products = await Product.find(filter)
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: -1 });
+  const result = await Product.aggregate([
+    { $match: match },
+    { $sort: { createdAt: -1 } },
+    {
+      $facet: {
+        items: [{ $skip: skip }, { $limit: limit }],
+        totalCount: [{ $count: 'count' }],
+      },
+    },
+  ]);
 
-  const total = await Product.countDocuments(filter);
+  const items = result[0].items;
+  const total = result[0].totalCount[0]?.count || 0;
 
   return NextResponse.json({
     page,
     totalPages: Math.ceil(total / limit),
     totalItems: total,
-    items: products,
+    items,
   });
 }
+
 
 
 export async function POST(req: NextRequest) {

@@ -3,10 +3,11 @@ import { Product } from '@/app/models/Product';
 import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { connectDB } from '@/app/lib/db';
+type tParams = Promise<{ id: string }>;
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: tParams }
 ) {
   await connectDB();
   
@@ -26,7 +27,7 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: tParams }
 ) {
   await connectDB();
   const { id } = await params;
@@ -54,7 +55,7 @@ export async function PUT(
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: tParams }
 ) {
   await connectDB();
   const { id } = await params;
