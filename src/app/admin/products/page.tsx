@@ -30,7 +30,7 @@ export default function AdminProductsPage() {
     const loadingToast = toast.loading('Loading products...');
     
     try {
-      const res = await fetch('/api/products');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products`);
       if (!res.ok) throw new Error('Failed to fetch products');
       const data = await res.json();
       setProducts(data.items || []);
@@ -52,7 +52,7 @@ export default function AdminProductsPage() {
     const deleteToast = toast.loading('Moving to trash...');
     
     try {
-      const res = await fetch(`/api/products/${id}/trash`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${id}/trash`, {
         method: 'PATCH',
       });
 
@@ -75,7 +75,7 @@ export default function AdminProductsPage() {
     const restoreToast = toast.loading('Restoring product...');
     
     try {
-      const res = await fetch(`/api/products/${id}/restore`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${id}/restore`, {
         method: 'PATCH',
       });
 

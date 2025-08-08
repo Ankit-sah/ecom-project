@@ -39,7 +39,7 @@ const EditProductPage = () => {
     const fetchProduct = async () => {
       setIsLoading(true)
       try {
-        const response = await fetch(`/api/products/${id}`)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${id}`)
         if (!response.ok) throw new Error('Failed to fetch product')
         
         const product = await response.json()
@@ -111,7 +111,7 @@ const EditProductPage = () => {
     const toastId = toast.loading('Updating product...')
 
     try {
-      const response = await fetch(`/api/products/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
