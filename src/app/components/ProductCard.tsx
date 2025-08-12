@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 
 interface ProductCardProps {
   product: {
-    _id: string;
+    id: string;
     title: string;
     description: string;
     price: number;
@@ -38,10 +38,10 @@ export default function ProductCard({
     setLocalLoading(true);
     try {
       if (action === 'delete' && onDelete) {
-        await onDelete(product._id);
+        await onDelete(product.id);
         toast.success('Product moved to trash');
       } else if (action === 'restore' && onRestore) {
-        await onRestore(product._id);
+        await onRestore(product.id);
         toast.success('Product restored successfully');
       }
     } catch (error) {
@@ -128,7 +128,7 @@ export default function ProductCard({
             <div className="grid grid-cols-2 gap-2">
               <Button
                 as={Link}
-                href={`/admin/products/${product._id}`}
+                href={`/admin/products/${product.id}`}
                 className="flex items-center justify-center rounded-md bg-blue-100 px-3 py-2 text-sm font-medium text-blue-800 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 <PencilIcon className="h-4 w-4 mr-2" />
@@ -154,7 +154,7 @@ export default function ProductCard({
           <div className="grid grid-cols-2 gap-2">
             <Button
               as={Link}
-              href={`/products/${product._id}`}
+              href={`/products/${product.id}`}
               className="rounded-md bg-gray-100 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500"
             >
               Details
