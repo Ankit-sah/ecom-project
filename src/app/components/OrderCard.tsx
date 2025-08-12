@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 interface OrderItem {
   product: {
-    _id: string;
+    id: string;
     name: string;
     price: number;
     image: string;
@@ -14,7 +14,7 @@ interface OrderItem {
 
 interface OrderCardProps {
   order: {
-    _id: string;
+    id: string;
     items: OrderItem[];
     totalAmount: number;
     status: string;
@@ -36,7 +36,7 @@ export function OrderCard({ order }: OrderCardProps) {
       <div className="p-4 border-b">
         <div className="flex justify-between items-center">
           <span className="text-sm text-gray-500">
-            Order #{order._id.toString().slice(-6).toUpperCase()}
+            Order #{order.id.toString().slice(-6).toUpperCase()}
           </span>
           <span className={`text-xs px-2 py-1 rounded-full ${statusColors[order.status as keyof typeof statusColors]}`}>
             {order.status}
@@ -49,7 +49,7 @@ export function OrderCard({ order }: OrderCardProps) {
       
       <div className="p-4">
         {order.items.map((item) => (
-          <div key={item.product._id} className="flex items-center py-2">
+          <div key={item.product.id} className="flex items-center py-2">
             <Image
               src={item.product.image}
               alt={item.product.name}
@@ -70,7 +70,7 @@ export function OrderCard({ order }: OrderCardProps) {
       <div className="p-4 border-t flex justify-between items-center">
         <span className="font-medium">Total: ${order.totalAmount.toFixed(2)}</span>
         <Link
-          href={`/orders/${order._id}`}
+          href={`/orders/${order.id}`}
           className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
         >
           View Details

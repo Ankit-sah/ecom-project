@@ -15,7 +15,7 @@ interface OrderItem {
 }
 
 interface Order {
-  _id: string;
+  id: string;
   user: string;
   items: OrderItem[];
   totalAmount: number;
@@ -54,9 +54,9 @@ export default function OrdersPage() {
       <h1 className="text-2xl font-bold mb-4">My Orders</h1>
       <div className="space-y-6">
         {orders.map((order) => (
-          <div key={order._id} className="border rounded-lg p-4 shadow-sm">
+          <div key={order.id} className="border rounded-lg p-4 shadow-sm">
             <div className="mb-2 text-sm text-gray-500">
-              <span>Order ID: {order._id}</span> |{' '}
+              <span>Order ID: {order.id}</span> |{' '}
               <span>Status: <strong className="capitalize">{order.status}</strong></span> |{' '}
               <span>Placed on: {new Date(order.createdAt).toLocaleDateString()}</span>
             </div>
