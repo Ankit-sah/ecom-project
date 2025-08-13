@@ -1,8 +1,7 @@
-// app/api/orders/route.ts
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/utils/authOptions';
-import  prisma from '@/app/lib/db';
+import prisma from '@/app/lib/db';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -12,31 +11,30 @@ export async function GET() {
   }
 
   try {
-    const orders = await prisma.order.findMany({
-      where: {
-        user: session.user.id
-      },
+   const orders = await prisma.order.findMany({
+  where: {
+    user: session.user.id
+  },
+  include: {
+    items: {
       include: {
-        items: {
-          include: {
-            product: {
-              select: {
-                title: true,
-                price: true,
-                image: true
-              }
-            }
-          }
-        },
-        userRef: {
+        product: {  // Now properly recognized as a relation
           select: {
-            name: true,
-            email: true
+            title: true,
+            price: true,
+            image: true
           }
         }
       }
-    });
-
+    },
+    userRef: {
+      select: {
+        name: true,
+        email: true
+      }
+    }
+  }
+});
     return NextResponse.json(orders);
   } catch (error) {
     console.error('Failed to fetch orders:', error);
