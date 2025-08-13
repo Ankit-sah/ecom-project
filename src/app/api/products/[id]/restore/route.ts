@@ -5,10 +5,10 @@ type Params = { id: string };
 
 export async function PATCH(
   _req: NextRequest,
-  { params }: { params: Params }
+  { params }: { params: Promise<Params> }
 ) {
   try {
-    const { id } =  await params;
+    const { id } = await  params;
 
     if (!isValidObjectId(id)) {
       return NextResponse.json({ error: 'Invalid product ID' }, { status: 400 });

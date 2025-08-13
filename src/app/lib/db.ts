@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client'
 
 // Type-safe global variable declaration
 declare global {
-  // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined
 }
 

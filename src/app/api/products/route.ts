@@ -1,12 +1,9 @@
-
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/app/lib/db'
-
+import prisma from '@/app/lib/db';
+import { Prisma } from '@prisma/client';
 
 export async function GET(req: NextRequest) {
   try {
- 
-
     const searchParams = req.nextUrl.searchParams;
 
     // Parse query parameters
@@ -16,8 +13,8 @@ export async function GET(req: NextRequest) {
     const category = searchParams.get('category') || '';
     const skip = (page - 1) * limit;
 
-    // Build the where clause
-    const where: any = { 
+    // Build the where clause with proper typing
+    const where: Prisma.ProductWhereInput = { 
       isDeleted: false 
     };
 
@@ -44,6 +41,7 @@ export async function GET(req: NextRequest) {
       }),
       prisma.product.count({ where })
     ]);
+    
     return NextResponse.json({
       page,
       totalPages: Math.ceil(total / limit),
@@ -59,6 +57,7 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
 
 
 

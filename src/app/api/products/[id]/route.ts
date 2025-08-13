@@ -5,7 +5,7 @@ type Params = { id: string };
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Params }
+  { params }: { params: Promise<Params> }
 ) {
   try {
     const { id } =  await params;
@@ -38,7 +38,7 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: Params }
+  { params }: { params: Promise<Params> }
 ) {
   try {
     const { id } = await params;
@@ -80,7 +80,7 @@ export async function PUT(
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: Params }
+  { params }: { params: Promise<Params> }
 ) {
   try {
     const { id } =await  params;
