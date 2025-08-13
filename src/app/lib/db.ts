@@ -1,31 +1,22 @@
-import mongoose from 'mongoose';
+// src/app/lib/db.ts
+import { PrismaClient } from '@prisma/client'
 
-const MONGODB_URI = process.env.MONGODB_URI as string;
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
+// Type-safe global variable declaration
+declare global {
+  var prisma: PrismaClient | undefined
 }
 
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
-export const connectDB = async () => {
-  if (cached.conn) return cached.conn;
-
-  if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, {
-      bufferCommands: false,
-    }).then((mongoose) => {
-      return mongoose;
-    }).catch((error) => {
-      console.error("❌ MongoDB connection failed:", error);
-      throw error;
-    });
+// Initialize Prisma Client only once
+const prismaClient = () => {
+  if (!global.prisma) {
+    console.log('Creating new Prisma Client instance')
+    global.prisma = new PrismaClient({
+      log: ['error'] // Only show errors in production
+    })
   }
+  return global.prisma
+}
 
-  cached.conn = await cached.promise;
-  return cached.conn;
-};
+// Export a singleton instance
+const prisma = prismaClient()
+export default prisma

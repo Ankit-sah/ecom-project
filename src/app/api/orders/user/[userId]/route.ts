@@ -1,28 +1,46 @@
-// app/api/orders/route.ts
-
-import { connectDB } from '@/app/lib/db';
-import { Order } from '@/app/models/Order';
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/utils/authOptions';
+import prisma from '@/app/lib/db';
 
 export async function GET() {
-  await connectDB();
-
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user || !session.user.id) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const orders = await Order.find({ user: session.user.id })
-      .populate('user', 'name email')
-      .populate('items.product', 'name price image');
-
+   const orders = await prisma.order.findMany({
+  where: {
+    user: session.user.id
+  },
+  include: {
+    items: {
+      include: {
+        product: {  // Now properly recognized as a relation
+          select: {
+            title: true,
+            price: true,
+            image: true
+          }
+        }
+      }
+    },
+    userRef: {
+      select: {
+        name: true,
+        email: true
+      }
+    }
+  }
+});
     return NextResponse.json(orders);
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Failed to fetch orders'}, { status: 500 });
+    console.error('Failed to fetch orders:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch orders' },
+      { status: 500 }
+    );
   }
 }

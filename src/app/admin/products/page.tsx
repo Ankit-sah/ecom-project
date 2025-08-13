@@ -9,7 +9,7 @@ import { ArrowPathIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 export const dynamic = 'force-dynamic';
 
 interface Product {
-  _id: string;
+  id: string;
   title: string;
   description: string;
   price: number;
@@ -57,7 +57,7 @@ export default function AdminProductsPage() {
       });
 
       if (res.ok) {
-        setProducts(prev => prev.filter(p => p._id !== id));
+        setProducts(prev => prev.filter(p => p.id !== id));
         toast.success('Product moved to trash', { id: deleteToast });
       } else {
         throw new Error(await res.text());
@@ -128,11 +128,11 @@ export default function AdminProductsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {activeProducts.map(product => (
                   <ProductCard
-                    key={product._id}
+                    key={product.id}
                     product={product}
                     onDelete={handleDelete}
                     adminView
-                    isDeleting={deletingId === product._id}
+                    isDeleting={deletingId === product.id}
                   />
                 ))}
               </div>
@@ -161,11 +161,11 @@ export default function AdminProductsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {trashedProducts.map(product => (
                   <ProductCard
-                    key={product._id}
+                    key={product.id}
                     product={product}
                     onRestore={handleRestore}
                     adminView
-                    isDeleting={restoringId === product._id}
+                    isDeleting={restoringId === product.id}
                   />
                 ))}
               </div>

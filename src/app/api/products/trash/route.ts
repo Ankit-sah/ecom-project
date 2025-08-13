@@ -1,12 +1,23 @@
-
-import { connectDB } from '@/app/lib/db';
-import { Product } from '@/app/models/Product';
 import { NextResponse } from 'next/server';
+import  prisma  from '@/app/lib/db';
 
 export async function GET() {
-  await connectDB();
+  try {
+    const trashedProducts = await prisma.product.findMany({
+      where: {
+        isDeleted: true
+      },
+      orderBy: {
+        deletedAt: 'desc'
+      }
+    });
 
-  const trashedProducts = await Product.find({ isDeleted: true }).sort({ deletedAt: -1 });
-
-  return NextResponse.json(trashedProducts);
+    return NextResponse.json(trashedProducts);
+  } catch (error) {
+    console.error('Failed to fetch trashed products:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch trashed products' },
+      { status: 500 }
+    );
+  }
 }

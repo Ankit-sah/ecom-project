@@ -1,74 +1,98 @@
-
-import { connectDB } from '@/app/lib/db';
-import { Product } from '@/app/models/Product';
-import { FilterQuery } from 'mongoose';
 import { NextRequest, NextResponse } from 'next/server';
-import { IProduct } from '@/app/models/Product';
+import prisma from '@/app/lib/db';
+import { Prisma } from '@prisma/client';
 
-// export async function GET() {
-//   try {
-//     await connectDB();
-//    const products = await Product.find({ isDeleted: false });
-//     return NextResponse.json(products);
-//   } catch (err) {
-//     console.error(err);
-//     return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
-//   }
-// }
 export async function GET(req: NextRequest) {
-  await connectDB();
+  try {
+    const searchParams = req.nextUrl.searchParams;
 
-  const searchParams = req.nextUrl.searchParams;
+    // Parse query parameters
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const search = searchParams.get('search') || '';
+    const category = searchParams.get('category') || '';
+    const skip = (page - 1) * limit;
 
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '10');
-  const search = searchParams.get('search') || '';
-  const category = searchParams.get('category') || '';
+    // Build the where clause with proper typing
+    const where: Prisma.ProductWhereInput = { 
+      isDeleted: false 
+    };
 
-  const skip = (page - 1) * limit;
+    if (search) {
+      where.title = {
+        contains: search,
+        mode: 'insensitive' // Case-insensitive search
+      };
+    }
 
-  const match: FilterQuery<IProduct> = { isDeleted: false };
+    if (category) {
+      where.category = category;
+    }
 
-  if (search) {
-    match.title = { $regex: search, $options: 'i' };
+    // Execute paginated query
+    const [items, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc'
+        }
+      }),
+      prisma.product.count({ where })
+    ]);
+    
+    return NextResponse.json({
+      page,
+      totalPages: Math.ceil(total / limit),
+      totalItems: total,
+      items
+    });
+
+  } catch (err) {
+    console.error('Failed to fetch products:', err);
+    return NextResponse.json(
+      { error: 'Failed to fetch products' }, 
+      { status: 500 }
+    );
   }
-
-  if (category) {
-    match.category = category;
-  }
-
-  const result = await Product.aggregate([
-    { $match: match },
-    { $sort: { createdAt: -1 } },
-    {
-      $facet: {
-        items: [{ $skip: skip }, { $limit: limit }],
-        totalCount: [{ $count: 'count' }],
-      },
-    },
-  ]);
-
-  const items = result[0].items;
-  const total = result[0].totalCount[0]?.count || 0;
-
-  return NextResponse.json({
-    page,
-    totalPages: Math.ceil(total / limit),
-    totalItems: total,
-    items,
-  });
 }
+
 
 
 
 export async function POST(req: NextRequest) {
   try {
-    await connectDB();
-    const body = await req.json();
-    const product = await Product.create(body);
-    return NextResponse.json(product, { status: 201 });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
+    // Ensure Prisma is initialized
+   
+    const body = await req.json()
+    
+    // Validate required fields
+    if (!body.title || typeof body.price !== 'number') {
+      return NextResponse.json(
+        { error: 'Invalid product data' },
+        { status: 400 }
+      )
+    }
+
+    const product = await prisma.product.create({
+      data: {
+        title: body.title,
+        description: body.description || '',
+        price: body.price,
+        category: body.category || 'uncategorized',
+        image: body.image || '',
+        inStock: body.inStock !== undefined ? body.inStock : true,
+        isDeleted: false
+      }
+    })
+
+    return NextResponse.json(product, { status: 201 })
+  } catch (error) {
+    console.error('Product creation failed:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
 }

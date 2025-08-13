@@ -1,34 +1,52 @@
-
-import { Product } from '@/app/models/Product';
 import { NextRequest, NextResponse } from 'next/server';
-import mongoose from 'mongoose';
-import { connectDB } from '@/app/lib/db';
+import  prisma  from '@/app/lib/db';
 
-type tParams = Promise<{ id: string }>;
+type Params = { id: string };
 
 export async function PATCH(
   _req: NextRequest,
-  { params }: { params: tParams }
+  { params }: { params: Promise<Params> }
 ) {
-  await connectDB();
-  const { id } = await params;
+  try {
+    const { id } = await  params;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return NextResponse.json({ error: 'Invalid product ID' }, { status: 400 });
+    if (!isValidObjectId(id)) {
+      return NextResponse.json({ error: 'Invalid product ID' }, { status: 400 });
+    }
+
+    // Find and restore only if product is currently deleted
+    const restored = await prisma.product.update({
+      where: {
+        id,
+        isDeleted: true
+      },
+      data: {
+        isDeleted: false,
+        deletedAt: null
+      }
+    });
+
+    if (!restored) {
+      return NextResponse.json(
+        { error: 'Deleted product not found' }, 
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      message: 'Product restored successfully',
+      product: restored,
+    });
+  } catch (error) {
+    console.error('PATCH Error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
+}
 
-  const restored = await Product.findOneAndUpdate(
-    { _id: id, isDeleted: true },
-    { isDeleted: false, deletedAt: null },
-    { new: true }
-  );
-
-  if (!restored) {
-    return NextResponse.json({ error: 'Deleted product not found' }, { status: 404 });
-  }
-
-  return NextResponse.json({
-    message: 'Product restored successfully',
-    product: restored,
-  });
+// Helper function to validate MongoDB ObjectId
+function isValidObjectId(id: string): boolean {
+  return /^[0-9a-fA-F]{24}$/.test(id);
 }
