@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
     ],
     
   },
+  experimental: {
+    disablePostcssPresetEnv: true, 
+  },
   // eslint: {
   //   ignoreDuringBuilds: true,
   // },
