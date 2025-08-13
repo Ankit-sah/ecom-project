@@ -36,10 +36,21 @@ model Product {
     inStock     Boolean   @default(true)
     isDeleted   Boolean   @default(false)
     deletedAt   DateTime?
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
+
+    createdAt  DateTime    @default(now())
+    updatedAt  DateTime    @updatedAt
+    orderItems OrderItem[] // Add this reciprocal relation field
 
     @@map("products")
+}
+
+model OrderItem {
+    id        String  @id @default(auto()) @map("_id") @db.ObjectId
+    order     Order   @relation(fields: [orderId], references: [id])
+    orderId   String  @db.ObjectId
+    product   Product @relation(fields: [productId], references: [id])
+    productId String  @db.ObjectId
+    quantity  Int     @default(1)
 }
 
 model Order {
@@ -53,14 +64,6 @@ model Order {
     updatedAt   DateTime    @updatedAt
 
     @@map("orders")
-}
-
-model OrderItem {
-    id       String @id @default(auto()) @map("_id") @db.ObjectId
-    order    Order  @relation(fields: [orderId], references: [id])
-    orderId  String @db.ObjectId
-    product  String // Product ID as string
-    quantity Int    @default(1)
 }
 
 enum Role {
